@@ -69,6 +69,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class McMMOPlayer implements Identified {
     private final @NotNull Identity identity;
@@ -951,7 +952,7 @@ public class McMMOPlayer implements Identified {
         }
 
         setToolPreparationMode(tool, false);
-        new AbilityDisableTask(this, superAbilityType).runTaskLater(mcMMO.p, (long) ticks * Misc.TICK_CONVERSION_FACTOR);
+        mcMMO.getScheduler().getImpl().runAtEntityLater(player, new AbilityDisableTask(this, superAbilityType), ticks, TimeUnit.SECONDS);
     }
 
     public void processAbilityActivation(@NotNull PrimarySkillType primarySkillType) {
@@ -1013,7 +1014,8 @@ public class McMMOPlayer implements Identified {
             }
 
             setToolPreparationMode(tool, true);
-            new ToolLowerTask(this, tool).runTaskLater(mcMMO.p, 4 * Misc.TICK_CONVERSION_FACTOR);
+
+            mcMMO.getScheduler().getImpl().runAtEntityLater(player, new ToolLowerTask(this, tool), 4L, TimeUnit.SECONDS);
         }
     }
 

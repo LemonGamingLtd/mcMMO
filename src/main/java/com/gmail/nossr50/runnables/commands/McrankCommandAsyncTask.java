@@ -5,11 +5,11 @@ import com.gmail.nossr50.mcMMO;
 import org.apache.commons.lang.Validate;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-public class McrankCommandAsyncTask extends BukkitRunnable {
+public class McrankCommandAsyncTask implements Runnable {
     private final String playerName;
     private final CommandSender sender;
     private final boolean useBoard, useChat;
@@ -32,7 +32,7 @@ public class McrankCommandAsyncTask extends BukkitRunnable {
     public void run() {
         Map<PrimarySkillType, Integer> skills = mcMMO.getDatabaseManager().readRank(playerName);
 
-        new McrankCommandDisplayTask(skills, sender, playerName, useBoard, useChat).runTaskLater(mcMMO.p, 1);
+        mcMMO.getScheduler().getImpl().runAtEntityLater((Player) sender, new McrankCommandDisplayTask(skills, sender, playerName, useBoard, useChat), 50L, TimeUnit.MILLISECONDS);
     }
 }
 

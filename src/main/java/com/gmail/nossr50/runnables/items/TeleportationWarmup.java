@@ -11,9 +11,8 @@ import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class TeleportationWarmup extends BukkitRunnable {
+public class TeleportationWarmup implements Runnable {
     private final McMMOPlayer mcMMOPlayer;
     private final McMMOPlayer mcMMOTarget;
 

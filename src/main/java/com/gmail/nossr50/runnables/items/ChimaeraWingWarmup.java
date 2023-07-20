@@ -10,9 +10,8 @@ import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class ChimaeraWingWarmup extends BukkitRunnable {
+public class ChimaeraWingWarmup implements Runnable {
     private final McMMOPlayer mcMMOPlayer;
 
     public ChimaeraWingWarmup(McMMOPlayer mcMMOPlayer) {

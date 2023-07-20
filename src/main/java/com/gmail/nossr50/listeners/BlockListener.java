@@ -134,9 +134,10 @@ public class BlockListener implements Listener {
             return;
         }
 
+        final Location location = event.getBlock().getLocation();
         final BlockFace direction = event.getDirection();
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(mcMMO.p, () -> {
+        mcMMO.getScheduler().getImpl().runAtLocation(location, () -> {
         for (final Block block : event.getBlocks()) {
             final Block movedBlock = block.getRelative(direction);
 

@@ -5,11 +5,10 @@ import com.gmail.nossr50.util.BlockUtils;
 import com.gmail.nossr50.util.MetadataConstants;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
-public class PistonTrackerTask extends BukkitRunnable {
+public class PistonTrackerTask implements Runnable {
     private final List<Block> blocks;
     private final BlockFace direction;
     private final Block futureEmptyBlock;

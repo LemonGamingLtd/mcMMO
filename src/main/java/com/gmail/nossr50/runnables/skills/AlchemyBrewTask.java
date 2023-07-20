@@ -10,14 +10,16 @@ import com.gmail.nossr50.skills.alchemy.AlchemyPotionBrewer;
 import com.gmail.nossr50.util.Misc;
 import com.gmail.nossr50.util.Permissions;
 import com.gmail.nossr50.util.player.UserManager;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class AlchemyBrewTask extends BukkitRunnable {
+import java.util.concurrent.TimeUnit;
+
+public class AlchemyBrewTask implements Runnable {
     private static final double DEFAULT_BREW_SPEED = 1.0;
     private static final int    DEFAULT_BREW_TICKS = 400;
 
@@ -28,6 +30,8 @@ public class AlchemyBrewTask extends BukkitRunnable {
     private final Player player;
     private int fuel;
     private boolean firstRun = true;
+
+    private final WrappedTask wrappedTask;
 
     public AlchemyBrewTask(BlockState brewingStand, Player player) {
         this.brewingStand = brewingStand;
@@ -53,7 +57,8 @@ public class AlchemyBrewTask extends BukkitRunnable {
         }
 
         if (Alchemy.brewingStandMap.containsKey(location)) {
-            Alchemy.brewingStandMap.get(location).cancel();
+            AlchemyBrewTask alchemyBrewTask = Alchemy.brewingStandMap.get(location);
+            alchemyBrewTask.wrappedTask.cancel();
         }
 
         fuel = ((BrewingStand) brewingStand).getFuelLevel();
@@ -62,7 +67,7 @@ public class AlchemyBrewTask extends BukkitRunnable {
             fuel--;
 
         Alchemy.brewingStandMap.put(location, this);
-        this.runTaskTimer(mcMMO.p, 1, 1);
+        wrappedTask = mcMMO.getScheduler().getImpl().runTimer(this, 50L, 50L, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -72,7 +77,7 @@ public class AlchemyBrewTask extends BukkitRunnable {
                 Alchemy.brewingStandMap.remove(location);
             }
 
-            this.cancel();
+            wrappedTask.cancel();
 
             return;
         }
@@ -86,7 +91,7 @@ public class AlchemyBrewTask extends BukkitRunnable {
 
         // Vanilla potion brewing completes when BrewingTime == 1
         if (brewTimer < Math.max(brewSpeed, 2)) {
-            this.cancel();
+            wrappedTask.cancel();
             finish();
         }
         else {
@@ -106,14 +111,14 @@ public class AlchemyBrewTask extends BukkitRunnable {
     }
 
     public void finishImmediately() {
-        this.cancel();
+        wrappedTask.cancel();
 
         AlchemyPotionBrewer.finishBrewing(brewingStand, player, true);
         Alchemy.brewingStandMap.remove(location);
     }
 
     public void cancelBrew() {
-        this.cancel();
+        wrappedTask.cancel();
 
         ((BrewingStand) brewingStand).setBrewingTime(-1);
         Alchemy.brewingStandMap.remove(location);

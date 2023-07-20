@@ -27,6 +27,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
+import java.util.concurrent.TimeUnit;
+
 public class AcrobaticsManager extends SkillManager {
 
     public AcrobaticsManager(McMMOPlayer mcMMOPlayer) {
@@ -113,7 +115,7 @@ public class AcrobaticsManager extends SkillManager {
                             applyXpGain((float) (damage * Acrobatics.dodgeXpModifier), XPGainReason.PVE);
                             mob.setMetadata(MetadataConstants.METADATA_KEY_DODGE_TRACKER, new FixedMetadataValue(mcMMO.p, count + 1));
                             MobDodgeMetaCleanup metaCleanupTask = new MobDodgeMetaCleanup(mob, mcMMO.p);
-                            metaCleanupTask.runTaskTimer(mcMMO.p, 20, 20*60); //one minute
+                            mcMMO.getScheduler().getImpl().runAtEntityTimer(mob, metaCleanupTask, 1L, 60L, TimeUnit.SECONDS); //one minute
                         }
                     } else {
                         applyXpGain((float) (damage * Acrobatics.dodgeXpModifier), XPGainReason.PVE);

@@ -9,14 +9,13 @@ import com.gmail.nossr50.util.scoreboards.ScoreboardManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
 /**
  * Display the results of {@link MctopCommandAsyncTask} to the sender.
  */
-public class MctopCommandDisplayTask extends BukkitRunnable {
+public class MctopCommandDisplayTask implements Runnable {
     private final List<PlayerStat> userStats;
     private final CommandSender sender;
     private final PrimarySkillType skill;

@@ -14,11 +14,12 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Cocoa;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DelayedCropReplant extends BukkitRunnable {
+import java.util.concurrent.TimeUnit;
+
+public class DelayedCropReplant implements Runnable {
 
     private final int desiredCropAge;
     private final Location cropLocation;
@@ -54,7 +55,11 @@ public class DelayedCropReplant extends BukkitRunnable {
         PlantAnchorType plantAnchorType = PlantAnchorType.NORMAL;
 
         //Remove the metadata marking the block as recently replanted
-        new markPlantAsOld(blockBreakEvent.getBlock().getLocation()).runTaskLater(mcMMO.p, 10);
+        mcMMO.getScheduler().getImpl().runAtLocationLater(
+            blockBreakEvent.getBlock().getLocation(),
+            new markPlantAsOld(blockBreakEvent.getBlock().getLocation()),
+            500L, TimeUnit.MILLISECONDS
+        );
 
         if(blockBreakEvent.isCancelled()) {
             wasImmaturePlant = true;
@@ -101,7 +106,11 @@ public class DelayedCropReplant extends BukkitRunnable {
 
             //Play an effect
             ParticleEffectUtils.playGreenThumbEffect(cropLocation);
-            new PhysicsBlockUpdate(newState.getBlock(), cropFace, plantAnchorType).runTaskLater(mcMMO.p, 1);
+            mcMMO.getScheduler().getImpl().runAtLocationLater(
+                newState.getLocation(),
+                new PhysicsBlockUpdate(newState.getBlock(), cropFace, plantAnchorType),
+                50L, TimeUnit.MILLISECONDS
+            );
         }
     }
 
@@ -110,7 +119,7 @@ public class DelayedCropReplant extends BukkitRunnable {
         COCOA
     }
 
-    private static class PhysicsBlockUpdate extends BukkitRunnable {
+    private static class PhysicsBlockUpdate implements Runnable {
         private final Block plantBlock;
         private final PlantAnchorType plantAnchorType;
         private BlockFace plantFace;
@@ -160,7 +169,7 @@ public class DelayedCropReplant extends BukkitRunnable {
 
 
 
-    private static class markPlantAsOld extends BukkitRunnable {
+    private static class markPlantAsOld implements Runnable {
 
         private final Location cropLoc;
 

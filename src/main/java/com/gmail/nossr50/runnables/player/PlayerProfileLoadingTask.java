@@ -12,9 +12,10 @@ import com.gmail.nossr50.util.player.UserManager;
 import com.gmail.nossr50.util.scoreboards.ScoreboardManager;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class PlayerProfileLoadingTask extends BukkitRunnable {
+import java.util.concurrent.TimeUnit;
+
+public class PlayerProfileLoadingTask implements Runnable {
     private final Player player;
     private int attempt = 0;
 
@@ -52,7 +53,7 @@ public class PlayerProfileLoadingTask extends BukkitRunnable {
 
         // If successful, schedule the apply
         if (profile.isLoaded()) {
-            new ApplySuccessfulProfile(new McMMOPlayer(player, profile)).runTask(mcMMO.p);
+            mcMMO.getScheduler().getImpl().runAtEntity(player, new ApplySuccessfulProfile(new McMMOPlayer(player, profile)));
             EventUtils.callPlayerProfileLoadEvent(player, profile);
             return;
         }
@@ -74,10 +75,10 @@ public class PlayerProfileLoadingTask extends BukkitRunnable {
         // Increment attempt counter and try
         attempt++;
 
-        new PlayerProfileLoadingTask(player, attempt).runTaskLaterAsynchronously(mcMMO.p, (100 + (attempt * 100L)));
+        mcMMO.getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player, attempt), (5L + (attempt * 5L)), TimeUnit.SECONDS);
     }
 
-    private class ApplySuccessfulProfile extends BukkitRunnable {
+    private class ApplySuccessfulProfile implements Runnable {
         private final McMMOPlayer mcMMOPlayer;
 
         private ApplySuccessfulProfile(McMMOPlayer mcMMOPlayer) {
@@ -104,7 +105,7 @@ public class PlayerProfileLoadingTask extends BukkitRunnable {
 
                 if (mcMMO.p.getGeneralConfig().getShowStatsAfterLogin()) {
                     ScoreboardManager.enablePlayerStatsScoreboard(player);
-                    new McScoreboardKeepTask(player).runTaskLater(mcMMO.p, Misc.TICK_CONVERSION_FACTOR);
+                    mcMMO.getScheduler().getImpl().runAtEntityLater(player, new McScoreboardKeepTask(player), 1L, TimeUnit.SECONDS);
                 }
             }
 

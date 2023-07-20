@@ -439,7 +439,7 @@ public class InventoryListener implements Listener {
                 return;
         }
 
-        new PlayerUpdateInventoryTask((Player) whoClicked).runTaskLater(plugin, 0);
+        ((Player) whoClicked).updateInventory();
     }
 
 }

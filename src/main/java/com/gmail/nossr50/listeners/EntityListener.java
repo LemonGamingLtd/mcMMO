@@ -28,6 +28,7 @@ import com.gmail.nossr50.util.skills.CombatUtils;
 import com.gmail.nossr50.util.skills.SkillActivationType;
 import com.gmail.nossr50.worldguard.WorldGuardManager;
 import com.gmail.nossr50.worldguard.WorldGuardUtils;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -50,6 +51,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeUnit;
 
 public class EntityListener implements Listener {
     private final mcMMO pluginRef;
@@ -242,7 +245,8 @@ public class EntityListener implements Listener {
 
                 entity.setMetadata(MetadataConstants.METADATA_KEY_TRAVELING_BLOCK, MetadataConstants.MCMMO_METADATA_VALUE);
                 TravelingBlockMetaCleanup metaCleanupTask = new TravelingBlockMetaCleanup(entity, pluginRef);
-                metaCleanupTask.runTaskTimer(pluginRef, 20, 20*60); //6000 ticks is 5 minutes
+                WrappedTask wrappedTask = mcMMO.getScheduler().getImpl().runAtEntityTimer(entity, metaCleanupTask, 1L, 60L, TimeUnit.SECONDS);
+                metaCleanupTask.setWrappedTask(wrappedTask);
             }
             else if (isTracked) {
                 BlockUtils.setUnnaturalBlock(block);

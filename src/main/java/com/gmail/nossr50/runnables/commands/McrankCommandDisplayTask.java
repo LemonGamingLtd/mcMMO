@@ -8,14 +8,13 @@ import com.gmail.nossr50.util.scoreboards.ScoreboardManager;
 import com.gmail.nossr50.util.skills.SkillTools;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;
 
 /**
  * Display the results of McrankCommandAsyncTask to the sender.
  */
-public class McrankCommandDisplayTask extends BukkitRunnable {
+public class McrankCommandDisplayTask implements Runnable {
     private final Map<PrimarySkillType, Integer> skills;
     private final CommandSender sender;
     private final String playerName;

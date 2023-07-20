@@ -6,11 +6,10 @@ import org.bukkit.Location;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 
-public class AlchemyBrewCheckTask extends BukkitRunnable {
+public class AlchemyBrewCheckTask implements Runnable {
     private final Player player;
     private final BrewingStand brewingStand;
     private final ItemStack[] oldInventory;

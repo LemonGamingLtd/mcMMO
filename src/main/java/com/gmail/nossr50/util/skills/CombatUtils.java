@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public final class CombatUtils {
 
@@ -807,7 +808,7 @@ public final class CombatUtils {
         baseXP *= multiplier;
 
         if (baseXP != 0) {
-            new AwardCombatXpTask(mcMMOPlayer, primarySkillType, baseXP, target, xpGainReason).runTaskLater(mcMMO.p, 0);
+            new AwardCombatXpTask(mcMMOPlayer, primarySkillType, baseXP, target, xpGainReason).run();
         }
     }
 
@@ -982,6 +983,6 @@ public final class CombatUtils {
      * @param entity the projectile
      */
     public static void delayArrowMetaCleanup(@NotNull Projectile entity) {
-        Bukkit.getServer().getScheduler().runTaskLater(mcMMO.p, () -> cleanupArrowMetadata(entity), 20*60);
+        mcMMO.getScheduler().getImpl().runAtEntityLater(entity, () -> cleanupArrowMetadata(entity), 1L, TimeUnit.MINUTES);
     }
 }

@@ -1,28 +1,31 @@
 package com.gmail.nossr50.skills.archery;
 
 import com.gmail.nossr50.mcMMO;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-public class TrackedEntity extends BukkitRunnable {
+public class TrackedEntity implements Runnable {
     private final LivingEntity livingEntity;
     private final UUID id;
     private int arrowCount;
+
+    private final WrappedTask wrappedTask;
 
     protected TrackedEntity(LivingEntity livingEntity) {
         this.livingEntity = livingEntity;
         this.id = livingEntity.getUniqueId();
 
-        this.runTaskTimer(mcMMO.p, 12000, 12000);
+        wrappedTask = mcMMO.getScheduler().getImpl().runAtEntityTimer(livingEntity, this, 10L, 10L, TimeUnit.MINUTES);
     }
 
     @Override
     public void run() {
         if (!livingEntity.isValid()) {
             Archery.removeFromTracker(this);
-            this.cancel();
+            wrappedTask.cancel();
         }
     }
 

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.DelayQueue;
+import java.util.concurrent.TimeUnit;
 
 public class PlayerProfile {
     private final String playerName;
@@ -102,16 +103,16 @@ public class PlayerProfile {
     }
 
     public void scheduleAsyncSave() {
-        new PlayerProfileSaveTask(this, false).runTaskAsynchronously(mcMMO.p);
+        mcMMO.getScheduler().getImpl().runAsync(new PlayerProfileSaveTask(this, false));
     }
 
     public void scheduleAsyncSaveDelay() {
-        new PlayerProfileSaveTask(this, false).runTaskLaterAsynchronously(mcMMO.p, 20);
+        mcMMO.getScheduler().getImpl().runLaterAsync(new PlayerProfileSaveTask(this, false), 1L, TimeUnit.SECONDS);
     }
 
     @Deprecated
     public void scheduleSyncSaveDelay() {
-        new PlayerProfileSaveTask(this, true).runTaskLater(mcMMO.p, 20);
+        mcMMO.getScheduler().getImpl().runLater(new PlayerProfileSaveTask(this, true), 1L, TimeUnit.SECONDS);
     }
 
     public void save(boolean useSync) {
@@ -138,7 +139,7 @@ public class PlayerProfile {
 
                 //Back out of async saving if we detect a server shutdown, this is not always going to be caught
                 if(mcMMO.isServerShutdownExecuted() || useSync)
-                    new PlayerProfileSaveTask(this, true).runTask(mcMMO.p);
+                    mcMMO.getScheduler().getImpl().runNextTick(new PlayerProfileSaveTask(this, true));
                 else
                     scheduleAsyncSave();
 

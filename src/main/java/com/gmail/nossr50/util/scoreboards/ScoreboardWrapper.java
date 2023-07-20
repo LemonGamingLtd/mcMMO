@@ -18,12 +18,11 @@ import com.gmail.nossr50.util.player.NotificationManager;
 import com.gmail.nossr50.util.player.UserManager;
 import com.gmail.nossr50.util.scoreboards.ScoreboardManager.SidebarType;
 import com.gmail.nossr50.util.skills.SkillTools;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -32,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class ScoreboardWrapper {
     public static final String SIDE_OBJECTIVE = "mcMMO_sideObjective";
@@ -86,9 +86,9 @@ public class ScoreboardWrapper {
         }
     }
 
-    public BukkitTask updateTask = null;
+    public WrappedTask updateTask = null;
 
-    private class ScoreboardQuickUpdate extends BukkitRunnable {
+    private class ScoreboardQuickUpdate implements Runnable {
         @Override
         public void run() {
             updateSidebar();
@@ -96,9 +96,9 @@ public class ScoreboardWrapper {
         }
     }
 
-    public BukkitTask revertTask = null;
+    public WrappedTask revertTask = null;
 
-    private class ScoreboardChangeTask extends BukkitRunnable {
+    private class ScoreboardChangeTask implements Runnable {
         @Override
         public void run() {
             tryRevertBoard();
@@ -106,9 +106,9 @@ public class ScoreboardWrapper {
         }
     }
 
-    public BukkitTask cooldownTask = null;
+    public WrappedTask cooldownTask = null;
 
-    private class ScoreboardCooldownTask extends BukkitRunnable {
+    private class ScoreboardCooldownTask implements Runnable {
         @Override
         public void run() {
             // Stop updating if it's no longer something displaying cooldowns
@@ -125,7 +125,7 @@ public class ScoreboardWrapper {
     public void doSidebarUpdateSoon() {
         if (updateTask == null) {
             // To avoid spamming the scheduler, store the instance and run 2 ticks later
-            updateTask = new ScoreboardQuickUpdate().runTaskLater(mcMMO.p, 2L);
+            updateTask = mcMMO.getScheduler().getImpl().runAtEntityLater(getPlayer(), new ScoreboardQuickUpdate(), 100L, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -133,7 +133,7 @@ public class ScoreboardWrapper {
         if (cooldownTask == null) {
             // Repeat every 5 seconds.
             // Cancels once all cooldowns are done, using stopCooldownUpdating().
-            cooldownTask = new ScoreboardCooldownTask().runTaskTimer(mcMMO.p, 5 * Misc.TICK_CONVERSION_FACTOR, 5 * Misc.TICK_CONVERSION_FACTOR);
+            cooldownTask = mcMMO.getScheduler().getImpl().runAtEntityTimer(getPlayer(), new ScoreboardCooldownTask(), 5L, 5L, TimeUnit.SECONDS);
         }
     }
 
@@ -166,7 +166,7 @@ public class ScoreboardWrapper {
      * Set the old targetBoard, for use in reverting.
      */
     public void setOldScoreboard() {
-        Player player = mcMMO.p.getServer().getPlayerExact(playerName);
+        Player player = getPlayer();
 
         if (player == null) {
             ScoreboardManager.cleanup(this);
@@ -188,7 +188,7 @@ public class ScoreboardWrapper {
     }
 
     public void showBoardWithNoRevert() {
-        Player player = mcMMO.p.getServer().getPlayerExact(playerName);
+        Player player = getPlayer();
 
         if (player == null) {
             ScoreboardManager.cleanup(this);
@@ -203,8 +203,8 @@ public class ScoreboardWrapper {
         revertTask = null;
     }
 
-    public void showBoardAndScheduleRevert(int ticks) {
-        Player player = mcMMO.p.getServer().getPlayerExact(playerName);
+    public void showBoardAndScheduleRevert(int seconds) {
+        Player player = getPlayer();
 
         if (player == null) {
             ScoreboardManager.cleanup(this);
@@ -216,10 +216,10 @@ public class ScoreboardWrapper {
         }
 
         player.setScoreboard(scoreboard);
-        revertTask = new ScoreboardChangeTask().runTaskLater(mcMMO.p, ticks);
+        revertTask = mcMMO.getScheduler().getImpl().runAtEntityLater(player, new ScoreboardChangeTask(), seconds, TimeUnit.SECONDS);
 
         // TODO is there any way to do the time that looks acceptable?
-        // player.sendMessage(LocaleLoader.getString("Commands.Scoreboard.Timer", StringUtils.capitalize(sidebarType.toString().toLowerCase(Locale.ENGLISH)), ticks / 20F));
+        // player.sendMessage(LocaleLoader.getString("Commands.Scoreboard.Timer", StringUtils.capitalize(sidebarType.toString().toLowerCase(Locale.ENGLISH)), seconds / 20F));
 
         if(UserManager.getPlayer(playerName) == null)
             return;
@@ -242,7 +242,7 @@ public class ScoreboardWrapper {
     }
 
     public void tryRevertBoard() {
-        Player player = mcMMO.p.getServer().getPlayerExact(playerName);
+        Player player = getPlayer();
 
         if (player == null) {
             ScoreboardManager.cleanup(this);
@@ -275,7 +275,7 @@ public class ScoreboardWrapper {
     }
 
     public boolean isBoardShown() {
-        Player player = mcMMO.p.getServer().getPlayerExact(playerName);
+        Player player = getPlayer();
 
         if (player == null) {
             ScoreboardManager.cleanup(this);
@@ -426,7 +426,7 @@ public class ScoreboardWrapper {
                     NotificationManager.sendPlayerInformationChatOnlyPrefixed(player, "Scoreboard.Recovery");
 
                 initBoard(); //Start over
-                Bukkit.getScheduler().runTaskLater(mcMMO.p, () -> ScoreboardManager.retryLastSkillBoard(player), 0);
+                ScoreboardManager.retryLastSkillBoard(player);
             }
         }
 
@@ -471,7 +471,7 @@ public class ScoreboardWrapper {
             return;
         }
 
-        Player player = mcMMO.p.getServer().getPlayerExact(playerName);
+        Player player = getPlayer();
 
         if (player == null) {
             ScoreboardManager.cleanup(this);
@@ -606,7 +606,7 @@ public class ScoreboardWrapper {
 
     public void acceptRankData(Map<PrimarySkillType, Integer> rankData) {
         Integer rank;
-        Player player = mcMMO.p.getServer().getPlayerExact(playerName);
+        Player player = getPlayer();
 
         for (PrimarySkillType skill : SkillTools.NON_CHILD_SKILLS) {
             if (!mcMMO.p.getSkillTools().doesPlayerHaveSkillPermission(player, skill)) {
@@ -641,5 +641,9 @@ public class ScoreboardWrapper {
 
     public void updatePowerLevel(Player player, int newPowerLevel) {
         powerObjective.getScore(player.getName()).setScore(newPowerLevel);
+    }
+
+    private Player getPlayer() {
+        return Bukkit.getPlayerExact(playerName);
     }
 }

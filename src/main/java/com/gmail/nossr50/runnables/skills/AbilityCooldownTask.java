@@ -4,9 +4,8 @@ import com.gmail.nossr50.datatypes.interactions.NotificationType;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.SuperAbilityType;
 import com.gmail.nossr50.util.player.NotificationManager;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class AbilityCooldownTask extends BukkitRunnable {
+public class AbilityCooldownTask implements Runnable {
     private final McMMOPlayer mcMMOPlayer;
     private final SuperAbilityType ability;
 

@@ -39,10 +39,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class HerbalismManager extends SkillManager {
     public HerbalismManager(McMMOPlayer mcMMOPlayer) {
@@ -107,12 +107,12 @@ public class HerbalismManager extends SkillManager {
                 }
 
                 CheckBushAge checkBushAge = new CheckBushAge(blockState.getBlock(), mmoPlayer, xpReward);
-                checkBushAge.runTaskLater(mcMMO.p, 1);
+                mcMMO.getScheduler().getImpl().runAtLocationLater(blockState.getLocation(), checkBushAge, 50L, TimeUnit.MILLISECONDS);
             }
         }
     }
 
-    private class CheckBushAge extends BukkitRunnable {
+    private class CheckBushAge implements Runnable {
 
         @NotNull Block block;
         @NotNull McMMOPlayer mmoPlayer;
@@ -311,7 +311,7 @@ public class HerbalismManager extends SkillManager {
             DelayedHerbalismXPCheckTask delayedHerbalismXPCheckTask = new DelayedHerbalismXPCheckTask(mmoPlayer, delayedChorusBlocks);
 
             //Large delay because the tree takes a while to break
-            delayedHerbalismXPCheckTask.runTaskLater(mcMMO.p, 0); //Calculate Chorus XP + Bonus Drops 1 tick later
+            delayedHerbalismXPCheckTask.run(); //Calculate Chorus XP + Bonus Drops 1 tick later
         }
     }
 
@@ -742,7 +742,7 @@ public class HerbalismManager extends SkillManager {
      */
     private void startReplantTask(int desiredCropAge, BlockBreakEvent blockBreakEvent, BlockState cropState, boolean isImmature) {
         //Mark the plant as recently replanted to avoid accidental breakage
-        new DelayedCropReplant(blockBreakEvent, cropState, desiredCropAge, isImmature).runTaskLater(mcMMO.p, 20 * 2);
+        mcMMO.getScheduler().getImpl().runAtLocationLater(blockBreakEvent.getBlock().getLocation(), new DelayedCropReplant(blockBreakEvent, cropState, desiredCropAge, isImmature), 2L, TimeUnit.SECONDS);
         blockBreakEvent.getBlock().setMetadata(MetadataConstants.METADATA_KEY_REPLANT, new RecentlyReplantedCropMeta(mcMMO.p, true));
     }
 

@@ -2,10 +2,9 @@ package com.gmail.nossr50.runnables.skills;
 
 import com.gmail.nossr50.skills.fishing.FishingManager;
 import org.bukkit.entity.FishHook;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-public class MasterAnglerTask extends BukkitRunnable {
+public class MasterAnglerTask implements Runnable {
     private final @NotNull FishHook fishHook;
     private final @NotNull FishingManager fishingManager;
     private final int lureLevel;

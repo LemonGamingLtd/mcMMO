@@ -2,9 +2,8 @@ package com.gmail.nossr50.runnables.commands;
 
 import com.gmail.nossr50.util.scoreboards.ScoreboardManager;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class McScoreboardKeepTask extends BukkitRunnable {
+public class McScoreboardKeepTask implements Runnable {
     private final Player player;
 
     public McScoreboardKeepTask(Player player) {

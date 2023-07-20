@@ -5,9 +5,8 @@ import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.ToolType;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.player.NotificationManager;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class ToolLowerTask extends BukkitRunnable {
+public class ToolLowerTask implements Runnable {
     private final McMMOPlayer mcMMOPlayer;
     private final ToolType tool;
 

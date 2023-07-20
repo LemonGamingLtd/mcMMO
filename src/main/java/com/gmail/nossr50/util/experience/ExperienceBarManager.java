@@ -6,12 +6,14 @@ import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.runnables.skills.ExperienceBarHideTask;
 import com.gmail.nossr50.util.player.NotificationManager;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ExperienceBarManager handles displaying and updating mcMMO experience bars for players
@@ -22,7 +24,7 @@ public class ExperienceBarManager {
     int delaySeconds = 3;
 
     private HashMap<PrimarySkillType, ExperienceBarWrapper> experienceBars;
-    private HashMap<PrimarySkillType, ExperienceBarHideTask> experienceBarHideTaskHashMap;
+    private HashMap<PrimarySkillType, WrappedTask> experienceBarHideTaskHashMap;
 
     private HashSet<PrimarySkillType> alwaysVisible;
     private HashSet<PrimarySkillType> disabledBars;
@@ -76,9 +78,9 @@ public class ExperienceBarManager {
         if(alwaysVisible.contains(primarySkillType))
             return;
 
-        ExperienceBarHideTask experienceBarHideTask = new ExperienceBarHideTask(this, mcMMOPlayer, primarySkillType);
-        experienceBarHideTask.runTaskLater(plugin, 20L * delaySeconds);
-        experienceBarHideTaskHashMap.put(primarySkillType, experienceBarHideTask);
+        final ExperienceBarHideTask experienceBarHideTask = new ExperienceBarHideTask(this, mcMMOPlayer, primarySkillType);
+        final WrappedTask wrappedTask = mcMMO.getScheduler().getImpl().runAtEntityLater(mcMMOPlayer.getPlayer(), experienceBarHideTask, delaySeconds, TimeUnit.SECONDS);
+        experienceBarHideTaskHashMap.put(primarySkillType, wrappedTask);
     }
 
     public void hideExperienceBar(PrimarySkillType primarySkillType)

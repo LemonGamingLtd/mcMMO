@@ -49,9 +49,9 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class PlayerListener implements Listener {
     private final mcMMO plugin;
@@ -149,12 +149,12 @@ public class PlayerListener implements Listener {
         new MobHealthDisplayUpdaterTask(attacker).run();
 
         // set the name back
-        new BukkitRunnable() {
+        mcMMO.getScheduler().getImpl().runAtEntityLater(attacker, new Runnable() {
             @Override
             public void run() {
                 MobHealthbarUtils.handleMobHealthbars(attacker, 0, mcMMO.p);
             }
-        }.runTaskLater(mcMMO.p, 1);
+        }, 50L, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -595,7 +595,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
 
         //Delay loading for 3 seconds in case the player has a save task running, its hacky but it should do the trick
-        new PlayerProfileLoadingTask(player).runTaskLaterAsynchronously(mcMMO.p, 60);
+        mcMMO.getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player), 3L, TimeUnit.SECONDS);
 
         if (mcMMO.p.getGeneralConfig().getMOTDEnabled() && Permissions.motd(player)) {
             Motd.displayAll(player);

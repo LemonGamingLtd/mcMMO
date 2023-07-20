@@ -4,9 +4,8 @@ import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.util.player.UserManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class NotifySquelchReminderTask extends BukkitRunnable {
+public class NotifySquelchReminderTask implements Runnable {
 
     @Override
     public void run() {

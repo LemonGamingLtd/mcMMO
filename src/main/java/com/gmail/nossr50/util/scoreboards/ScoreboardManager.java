@@ -555,7 +555,7 @@ public class ScoreboardManager {
             wrapper.showBoardWithNoRevert();
         }
         else {
-            wrapper.showBoardAndScheduleRevert(displayTime * Misc.TICK_CONVERSION_FACTOR);
+            wrapper.showBoardAndScheduleRevert(displayTime);
         }
     }
 
@@ -572,7 +572,7 @@ public class ScoreboardManager {
     }
 
     public static void setRevertTimer(String playerName, int seconds) {
-        PLAYER_SCOREBOARDS.get(playerName).showBoardAndScheduleRevert(seconds * Misc.TICK_CONVERSION_FACTOR);
+        PLAYER_SCOREBOARDS.get(playerName).showBoardAndScheduleRevert(seconds);
     }
 
     public static boolean isPlayerBoardSetup(@NotNull String playerName) {

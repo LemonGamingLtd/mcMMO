@@ -18,11 +18,14 @@ import com.gmail.nossr50.util.random.RandomChanceUtil;
 import com.gmail.nossr50.util.skills.CombatUtils;
 import com.gmail.nossr50.util.skills.RankUtils;
 import com.gmail.nossr50.util.skills.SkillActivationType;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeUnit;
 
 public class SwordsManager extends SkillManager {
     public SwordsManager(McMMOPlayer mcMMOPlayer) {
@@ -92,10 +95,10 @@ public class SwordsManager extends SkillManager {
             RuptureTask ruptureTask = new RuptureTask(mmoPlayer, target,
                     mcMMO.p.getAdvancedConfig().getRuptureTickDamage(target instanceof Player, getRuptureRank()),
                     mcMMO.p.getAdvancedConfig().getRuptureExplosionDamage(target instanceof Player, getRuptureRank()));
+            WrappedTask wrappedTask = mcMMO.getScheduler().getImpl().runAtEntityTimer(mmoPlayer.getPlayer(), ruptureTask, 50L, 50L, TimeUnit.MILLISECONDS);
+            ruptureTask.setWrappedTask(wrappedTask);
 
             RuptureTaskMeta ruptureTaskMeta = new RuptureTaskMeta(mcMMO.p, ruptureTask);
-
-            ruptureTask.runTaskTimer(mcMMO.p, 0, 1);
             target.setMetadata(MetadataConstants.METADATA_KEY_RUPTURE, ruptureTaskMeta);
 
 //            if (mmoPlayer.useChatNotifications()) {

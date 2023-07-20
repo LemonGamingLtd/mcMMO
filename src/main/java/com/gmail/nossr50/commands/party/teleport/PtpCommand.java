@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class PtpCommand implements TabExecutor {
     public static final List<String> TELEPORT_SUBCOMMANDS = ImmutableList.of("toggle", "accept", "acceptany", "acceptall");
@@ -250,7 +251,7 @@ public class PtpCommand implements TabExecutor {
 
         if (warmup > 0) {
             teleportingPlayer.sendMessage(LocaleLoader.getString("Teleport.Commencing", warmup));
-            new TeleportationWarmup(mcMMOPlayer, mcMMOTarget).runTaskLater(mcMMO.p, 20 * warmup);
+            mcMMO.getScheduler().getImpl().runAtEntityLater(mcMMOPlayer.getPlayer(), new TeleportationWarmup(mcMMOPlayer, mcMMOTarget), warmup, TimeUnit.SECONDS);
         }
         else {
             EventUtils.handlePartyTeleportEvent(teleportingPlayer, targetPlayer);

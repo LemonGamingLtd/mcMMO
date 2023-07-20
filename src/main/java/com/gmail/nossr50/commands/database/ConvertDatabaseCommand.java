@@ -15,6 +15,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.TimeUnit;
+
 public class ConvertDatabaseCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
@@ -64,10 +66,10 @@ public class ConvertDatabaseCommand implements CommandExecutor {
                     mcMMO.getDatabaseManager().saveUser(profile);
                 }
 
-                new PlayerProfileLoadingTask(player).runTaskLaterAsynchronously(mcMMO.p, 1); // 1 Tick delay to ensure the player is marked as online before we begin loading
+                mcMMO.getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
             }
 
-            new DatabaseConversionTask(oldDatabase, sender, previousType.toString(), newType.toString()).runTaskAsynchronously(mcMMO.p);
+            mcMMO.getScheduler().getImpl().runAsync(new DatabaseConversionTask(oldDatabase, sender, previousType.toString(), newType.toString()));
             return true;
         }
         return false;

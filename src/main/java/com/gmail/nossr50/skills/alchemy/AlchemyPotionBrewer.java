@@ -259,13 +259,13 @@ public final class AlchemyPotionBrewer {
     }
 
     public static void scheduleCheck(Player player, BrewingStand brewingStand) {
-        new AlchemyBrewCheckTask(player, brewingStand).runTask(mcMMO.p);
+        mcMMO.getScheduler().getImpl().runAtEntity(player, new AlchemyBrewCheckTask(player, brewingStand));
     }
 
     public static void scheduleUpdate(Inventory inventory) {
         for (HumanEntity humanEntity : inventory.getViewers()) {
-            if (humanEntity instanceof Player) {
-                new PlayerUpdateInventoryTask((Player) humanEntity).runTask(mcMMO.p);
+            if (humanEntity instanceof Player player) {
+                mcMMO.getScheduler().getImpl().runAtEntity(player, new PlayerUpdateInventoryTask(player));
             }
         }
     }

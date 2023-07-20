@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class RankUtils {
     private static HashMap<String, HashMap<Integer, Integer>> subSkillRanks;
@@ -47,8 +48,7 @@ public class RankUtils {
             if(newLevel == innerMap.get(playerRankInSkill))
             {
                 SkillUnlockNotificationTask skillUnlockNotificationTask = new SkillUnlockNotificationTask(mcMMOPlayer, subSkillType, newLevel);
-
-                skillUnlockNotificationTask.runTaskLater(plugin, (count * 100L));
+                mcMMO.getScheduler().getImpl().runAtEntityLater(mcMMOPlayer.getPlayer(), skillUnlockNotificationTask, count * 5L, TimeUnit.SECONDS);
 
                 count++;
             }

@@ -13,9 +13,8 @@ import com.gmail.nossr50.util.Misc;
 import com.gmail.nossr50.util.player.UserManager;
 import com.gmail.nossr50.util.skills.SkillTools;
 import org.bukkit.command.CommandSender;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class FormulaConversionTask extends BukkitRunnable {
+public class FormulaConversionTask implements Runnable {
     private final CommandSender sender;
     private final FormulaType formulaType;
 

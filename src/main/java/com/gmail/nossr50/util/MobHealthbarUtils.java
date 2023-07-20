@@ -12,6 +12,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.concurrent.TimeUnit;
+
 public final class MobHealthbarUtils {
     private MobHealthbarUtils() {}
 
@@ -81,7 +83,7 @@ public final class MobHealthbarUtils {
                 target.setMetadata(MetadataConstants.METADATA_KEY_NAME_VISIBILITY, new FixedMetadataValue(mcMMO.p, false));
             }
 
-            new MobHealthDisplayUpdaterTask(target).runTaskLater(mcMMO.p, (long) displayTime * Misc.TICK_CONVERSION_FACTOR); // Clear health display after 3 seconds
+            mcMMO.getScheduler().getImpl().runAtEntityLater(target, new MobHealthDisplayUpdaterTask(target), displayTime, TimeUnit.SECONDS); // Clear health display after 3 seconds
         }
     }
 

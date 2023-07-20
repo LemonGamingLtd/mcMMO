@@ -23,6 +23,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public final class ChimaeraWing {
     private static McMMOPlayer mcMMOPlayer;
@@ -112,7 +113,7 @@ public final class ChimaeraWing {
 
         if (warmup > 0) {
             NotificationManager.sendPlayerInformation(player, NotificationType.ITEM_MESSAGE, "Teleport.Commencing", String.valueOf(warmup));
-            new ChimaeraWingWarmup(mcMMOPlayer).runTaskLater(mcMMO.p, 20 * warmup);
+            mcMMO.getScheduler().getImpl().runAtEntityLater(mcMMOPlayer.getPlayer(), new ChimaeraWingWarmup(mcMMOPlayer), warmup, TimeUnit.SECONDS);
         }
         else {
             chimaeraExecuteTeleport();

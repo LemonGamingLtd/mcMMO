@@ -3,15 +3,20 @@ package com.gmail.nossr50.skills.taming;
 import com.gmail.nossr50.datatypes.skills.subskills.taming.CallOfTheWildType;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.Misc;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TrackedTamingEntity extends BukkitRunnable {
+import java.util.concurrent.TimeUnit;
+
+public class TrackedTamingEntity implements Runnable {
     private final @NotNull LivingEntity livingEntity;
     private final @NotNull CallOfTheWildType callOfTheWildType;
     private final @NotNull Player player;
+
+    private @Nullable WrappedTask wrappedTask;
 
     protected TrackedTamingEntity(@NotNull LivingEntity livingEntity, @NotNull CallOfTheWildType callOfTheWildType, @NotNull Player player) {
         this.player = player;
@@ -21,15 +26,16 @@ public class TrackedTamingEntity extends BukkitRunnable {
         int tamingCOTWLength = mcMMO.p.getGeneralConfig().getTamingCOTWLength(callOfTheWildType.getConfigEntityTypeEntry());
 
         if (tamingCOTWLength > 0) {
-            int length = tamingCOTWLength * Misc.TICK_CONVERSION_FACTOR;
-            this.runTaskLater(mcMMO.p, length);
+            wrappedTask = mcMMO.getScheduler().getImpl().runAtEntityLater(livingEntity, this, tamingCOTWLength, TimeUnit.SECONDS);
         }
     }
 
     @Override
     public void run() {
         mcMMO.getTransientEntityTracker().removeSummon(this.getLivingEntity(), player, true);
-        this.cancel();
+        if (wrappedTask != null) {
+            wrappedTask.cancel();
+        }
     }
 
     public @NotNull CallOfTheWildType getCallOfTheWildType() {

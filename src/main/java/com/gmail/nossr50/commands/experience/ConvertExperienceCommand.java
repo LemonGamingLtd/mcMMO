@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class ConvertExperienceCommand implements CommandExecutor {
     @Override
@@ -36,10 +37,10 @@ public class ConvertExperienceCommand implements CommandExecutor {
             UserManager.saveAll();
             UserManager.clearAll();
 
-            new FormulaConversionTask(sender, newType).runTaskLater(mcMMO.p, 1);
+            mcMMO.getScheduler().getImpl().runLater(new FormulaConversionTask(sender, newType), 50L, TimeUnit.MILLISECONDS);
 
             for (Player player : mcMMO.p.getServer().getOnlinePlayers()) {
-                new PlayerProfileLoadingTask(player).runTaskLaterAsynchronously(mcMMO.p, 1); // 1 Tick delay to ensure the player is marked as online before we begin loading
+                mcMMO.getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
             }
 
             return true;

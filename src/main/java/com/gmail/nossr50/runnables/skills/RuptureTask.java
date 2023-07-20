@@ -6,12 +6,12 @@ import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.MetadataConstants;
 import com.gmail.nossr50.util.skills.ParticleEffectUtils;
 import com.google.common.base.Objects;
+import com.tcoded.folialib.wrapper.WrappedTask;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-public class RuptureTask extends BukkitRunnable {
+public class RuptureTask implements Runnable {
 
     public static final int DAMAGE_TICK_INTERVAL = 10;
     public static final int ANIMATION_TICK_INTERVAL = 1;
@@ -25,6 +25,8 @@ public class RuptureTask extends BukkitRunnable {
     private int animationTick;
     private final double pureTickDamage;
     private final double explosionDamage;
+
+    private WrappedTask wrappedTask;
 
     public RuptureTask(@NotNull McMMOPlayer ruptureSource, @NotNull LivingEntity targetEntity, double pureTickDamage, double explosionDamage) {
         this.ruptureSource = ruptureSource;
@@ -65,7 +67,7 @@ public class RuptureTask extends BukkitRunnable {
             }
         } else {
             targetEntity.removeMetadata(MetadataConstants.METADATA_KEY_RUPTURE, mcMMO.p);
-            this.cancel(); //Task no longer needed
+            wrappedTask.cancel(); //Task no longer needed
         }
     }
 
@@ -120,7 +122,7 @@ public class RuptureTask extends BukkitRunnable {
 //        targetEntity.removeMetadata(mcMMO.RUPTURE_META_KEY, mcMMO.p);
 
         targetEntity.removeMetadata(MetadataConstants.METADATA_KEY_RUPTURE, mcMMO.p);
-        this.cancel(); //Task no longer needed
+        wrappedTask.cancel(); //Task no longer needed
     }
 
     private double calculateAdjustedTickDamage() {
@@ -139,6 +141,10 @@ public class RuptureTask extends BukkitRunnable {
 
     private double getExplosionDamage() {
         return explosionDamage;
+    }
+
+    public void setWrappedTask(WrappedTask wrappedTask) {
+        this.wrappedTask = wrappedTask;
     }
 
     @Override
