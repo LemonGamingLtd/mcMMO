@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RankUtils {
     private static HashMap<String, HashMap<Integer, Integer>> subSkillRanks;
-    private static int count = 0;
+    private static int count = 1;
 
     /**
      *
