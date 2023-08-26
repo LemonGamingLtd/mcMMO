@@ -255,7 +255,7 @@ public class mcMMO extends JavaPlugin {
                 formulaManager = new FormulaManager();
 
                 for (Player player : getServer().getOnlinePlayers()) {
-                    getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
+                    getScheduler().getImpl().runLaterAsync(new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
                 }
 
                 LogUtils.debug(mcMMO.p.getLogger(), "Version " + getDescription().getVersion() + " is enabled!");

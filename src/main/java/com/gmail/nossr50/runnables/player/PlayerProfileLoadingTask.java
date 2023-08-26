@@ -75,7 +75,7 @@ public class PlayerProfileLoadingTask implements Runnable {
         // Increment attempt counter and try
         attempt++;
 
-        mcMMO.getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player, attempt), (5L + (attempt * 5L)), TimeUnit.SECONDS);
+        mcMMO.getScheduler().getImpl().runLaterAsync(new PlayerProfileLoadingTask(player, attempt), (5L + (attempt * 5L)), TimeUnit.SECONDS);
     }
 
     private class ApplySuccessfulProfile implements Runnable {

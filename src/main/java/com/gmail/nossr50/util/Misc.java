@@ -255,7 +255,7 @@ public final class Misc {
 
         if (player != null) {
             UserManager.remove(player);
-            mcMMO.getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
+            mcMMO.getScheduler().getImpl().runLaterAsync(new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
         }
     }
 

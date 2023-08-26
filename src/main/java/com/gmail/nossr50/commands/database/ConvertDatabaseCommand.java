@@ -66,7 +66,7 @@ public class ConvertDatabaseCommand implements CommandExecutor {
                     mcMMO.getDatabaseManager().saveUser(profile);
                 }
 
-                mcMMO.getScheduler().getImpl().runAtEntityLater(player, new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
+                mcMMO.getScheduler().getImpl().runLaterAsync(new PlayerProfileLoadingTask(player), 50L, TimeUnit.MILLISECONDS); // 1 Tick delay to ensure the player is marked as online before we begin loading
             }
 
             mcMMO.getScheduler().getImpl().runAsync(new DatabaseConversionTask(oldDatabase, sender, previousType.toString(), newType.toString()));
