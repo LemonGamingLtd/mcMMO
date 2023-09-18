@@ -937,4 +937,8 @@ public class AdvancedConfig extends BukkitConfig {
     public boolean isKnockOnWoodXPOrbEnabled() {
         return config.getBoolean("Skills.Woodcutting.TreeFeller.Knock_On_Wood.Add_XP_Orbs_To_Drops", true);
     }
+
+    public boolean ignorePlaceStoreForBlockGrowEvent() {
+        return config.getBoolean("Skills.General.IgnorePlaceStoreForBlockGrowEvent", false);
+    }
 }

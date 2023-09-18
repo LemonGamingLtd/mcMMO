@@ -304,8 +304,9 @@ public class BlockListener implements Listener {
         Block block = event.getBlock();
         World world = block.getWorld();
 
+
         /* WORLD BLACKLIST CHECK */
-        if(WorldBlacklist.isWorldBlacklisted(world))
+        if(WorldBlacklist.isWorldBlacklisted(world) || plugin.getAdvancedConfig().ignorePlaceStoreForBlockGrowEvent())
             return;
 
         // Minecraft is dumb, the events still throw when a plant "grows" higher than the max block height.  Even though no new block is created
