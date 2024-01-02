@@ -259,6 +259,9 @@ public final class AlchemyPotionBrewer {
     }
 
     public static void scheduleCheck(Player player, BrewingStand brewingStand) {
+        if (player == null) {
+            return;
+        }
         mcMMO.p.getFoliaLib().getImpl().runAtEntity(player, new AlchemyBrewCheckTask(player, brewingStand));
     }
 

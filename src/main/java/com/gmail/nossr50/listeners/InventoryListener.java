@@ -354,9 +354,12 @@ public class InventoryListener implements Listener {
     public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
         /* WORLD BLACKLIST CHECK */
 
-        if(event.getSource().getLocation() != null)
-            if(WorldBlacklist.isWorldBlacklisted(event.getSource().getLocation().getWorld()))
+        Inventory source = event.getSource();
+        if(source.getLocation() != null) {
+            if (WorldBlacklist.isWorldBlacklisted(source.getLocation().getWorld())) {
                 return;
+            }
+        }
 
         Inventory inventory = event.getDestination();
 
@@ -382,8 +385,8 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        if (mcMMO.p.getGeneralConfig().getEnabledForHoppers() && AlchemyPotionBrewer.isValidIngredient(null, item)) {
-            AlchemyPotionBrewer.scheduleCheck(null, (BrewingStand) holder);
+        if (mcMMO.p.getGeneralConfig().getEnabledForHoppers() && source.getHolder() instanceof Player player && AlchemyPotionBrewer.isValidIngredient(null, item)) {
+            AlchemyPotionBrewer.scheduleCheck(player, (BrewingStand) holder);
         }
     }
 

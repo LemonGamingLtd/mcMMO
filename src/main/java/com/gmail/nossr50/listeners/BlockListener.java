@@ -304,7 +304,6 @@ public class BlockListener implements Listener {
         Block block = event.getBlock();
         World world = block.getWorld();
 
-
         /* WORLD BLACKLIST CHECK */
         if(WorldBlacklist.isWorldBlacklisted(world) || plugin.getAdvancedConfig().ignorePlaceStoreForBlockGrowEvent())
             return;
