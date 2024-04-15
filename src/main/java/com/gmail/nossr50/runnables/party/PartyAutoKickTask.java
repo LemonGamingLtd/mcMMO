@@ -2,7 +2,6 @@ package com.gmail.nossr50.runnables.party;
 
 import com.gmail.nossr50.datatypes.party.Party;
 import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.party.PartyManager;
 import com.gmail.nossr50.util.CancellableRunnable;
 import org.bukkit.OfflinePlayer;
 
@@ -22,7 +21,7 @@ public class PartyAutoKickTask extends CancellableRunnable {
 
         long currentTime = System.currentTimeMillis();
 
-        for (Party party : PartyManager.getParties()) {
+        for (Party party : mcMMO.p.getPartyManager().getParties()) {
             for (UUID memberUniqueId : party.getMembers().keySet()) {
                 OfflinePlayer member = mcMMO.p.getServer().getOfflinePlayer(memberUniqueId);
                 boolean isProcessed = processedPlayers.contains(memberUniqueId);
@@ -38,7 +37,7 @@ public class PartyAutoKickTask extends CancellableRunnable {
         }
 
         for (Entry<OfflinePlayer, Party> entry : toRemove.entrySet()) {
-            PartyManager.removeFromParty(entry.getKey(), entry.getValue());
+            mcMMO.p.getPartyManager().removeFromParty(entry.getKey(), entry.getValue());
         }
     }
 }

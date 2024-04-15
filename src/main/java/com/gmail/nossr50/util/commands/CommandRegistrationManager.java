@@ -42,8 +42,8 @@ public final class CommandRegistrationManager {
             command.setDescription(LocaleLoader.getString("Commands.Description.Skill", StringUtils.getCapitalized(localizedName)));
             command.setPermission("mcmmo.commands." + commandName);
             command.setPermissionMessage(permissionsMessage);
-            command.setUsage(LocaleLoader.getString("Commands.Usage.0", localizedName));
-            command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.2", localizedName, "?", "[" + LocaleLoader.getString("Commands.Usage.Page") + "]"));
+            command.setUsage(LocaleLoader.getString("Commands.Usage.0", commandName));
+            command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.2", commandName, "?", "[" + LocaleLoader.getString("Commands.Usage.Page") + "]"));
 
             switch (skill) {
                 case ACROBATICS:
@@ -60,6 +60,9 @@ public final class CommandRegistrationManager {
 
                 case AXES:
                     command.setExecutor(new AxesCommand());
+                    break;
+                case CROSSBOWS:
+                    command.setExecutor(new CrossbowsCommand());
                     break;
 
                 case EXCAVATION:
@@ -96,6 +99,9 @@ public final class CommandRegistrationManager {
 
                 case TAMING:
                     command.setExecutor(new TamingCommand());
+                    break;
+                case TRIDENTS:
+                    command.setExecutor(new TridentsCommand());
                     break;
 
                 case UNARMED:
@@ -138,15 +144,6 @@ public final class CommandRegistrationManager {
         command.setUsage(LocaleLoader.getString("Commands.Usage.1", "mcgod", "[" + LocaleLoader.getString("Commands.Usage.Player") + "]"));
         command.setExecutor(new McgodCommand());
     }
-
-//    private static void registerDropTreasureCommand() {
-//        PluginCommand command = mcMMO.p.getCommand("mmodroptreasures");
-//        command.setDescription(LocaleLoader.getString("Commands.Description.droptreasures"));
-//        command.setPermission("mcmmo.commands.droptreasures");
-//        command.setPermissionMessage(permissionsMessage);
-//        command.setUsage(LocaleLoader.getString("Commands.Usage.0", "mcgod"));
-//        command.setExecutor(new DropTreasureCommand());
-//    }
 
     private static void registerMmoInfoCommand() {
         PluginCommand command = mcMMO.p.getCommand("mmoinfo");
@@ -317,28 +314,6 @@ public final class CommandRegistrationManager {
         command.setExecutor(new McconvertCommand());
     }
 
-//    private static void registerAdminChatCommand() {
-//        PluginCommand command = mcMMO.p.getCommand("adminchat");
-//        command.setDescription(LocaleLoader.getString("Commands.Description.adminchat"));
-//        command.setPermission("mcmmo.chat.adminchat");
-//        command.setPermissionMessage(permissionsMessage);
-//        command.setUsage(LocaleLoader.getString("Commands.Usage.0", "adminchat"));
-//        command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.1", "adminchat", "<on|off>"));
-//        command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.1", "adminchat", "<" + LocaleLoader.getString("Commands.Usage.Message") + ">"));
-//        command.setExecutor(new AdminChatCommand());
-//    }
-
-//    private static void registerPartyChatCommand() {
-//        PluginCommand command = mcMMO.p.getCommand("partychat");
-//        command.setDescription(LocaleLoader.getString("Commands.Description.partychat"));
-//        command.setPermission("mcmmo.chat.partychat;mcmmo.commands.party");
-//        command.setPermissionMessage(permissionsMessage);
-//        command.setUsage(LocaleLoader.getString("Commands.Usage.0", "partychat"));
-//        command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.1", "partychat", "<on|off>"));
-//        command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.1", "partychat", "<" + LocaleLoader.getString("Commands.Usage.Message") + ">"));
-//        command.setExecutor(new PartyChatCommand());
-//    }
-
     private static void registerPartyCommand() {
         PluginCommand command = mcMMO.p.getCommand("party");
         command.setDescription(LocaleLoader.getString("Commands.Description.party"));
@@ -359,26 +334,6 @@ public final class CommandRegistrationManager {
         command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.1", "ptp", "<toggle|accept|acceptall>"));
         command.setExecutor(new PtpCommand());
     }
-
-//    private static void registerHardcoreCommand() {
-//        PluginCommand command = mcMMO.p.getCommand("hardcore");
-//        command.setDescription(LocaleLoader.getString("Commands.Description.hardcore"));
-//        command.setPermission("mcmmo.commands.hardcore;mcmmo.commands.hardcore.toggle;mcmmo.commands.hardcore.modify");
-//        command.setPermissionMessage(permissionsMessage);
-//        command.setUsage(LocaleLoader.getString("Commands.Usage.1", "hardcore", "[on|off]"));
-//        command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.1", "hardcore", "<" + LocaleLoader.getString("Commands.Usage.Rate") + ">"));
-//        command.setExecutor(new HardcoreCommand());
-//    }
-//
-//    private static void registerVampirismCommand() {
-//        PluginCommand command = mcMMO.p.getCommand("vampirism");
-//        command.setDescription(LocaleLoader.getString("Commands.Description.vampirism"));
-//        command.setPermission("mcmmo.commands.vampirism;mcmmo.commands.vampirism.toggle;mcmmo.commands.vampirism.modify");
-//        command.setPermissionMessage(permissionsMessage);
-//        command.setUsage(LocaleLoader.getString("Commands.Usage.1", "vampirism", "[on|off]"));
-//        command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.1", "vampirism", "<" + LocaleLoader.getString("Commands.Usage.Rate") + ">"));
-//        command.setExecutor(new VampirismCommand());
-//    }
 
     private static void registerMcnotifyCommand() {
         PluginCommand command = mcMMO.p.getCommand("mcnotify");
@@ -459,13 +414,11 @@ public final class CommandRegistrationManager {
         registerMmoeditCommand();
         registerSkillresetCommand();
 
-        // Hardcore Commands
-//        registerHardcoreCommand();
-//        registerVampirismCommand();
-
         // Party Commands
-        registerPartyCommand();
-        registerPtpCommand();
+        if (mcMMO.p.getPartyConfig().isPartyEnabled()) {
+            registerPartyCommand();
+            registerPtpCommand();
+        }
 
         // Player Commands
         registerInspectCommand();
