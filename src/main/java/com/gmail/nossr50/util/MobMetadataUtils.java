@@ -2,6 +2,7 @@ package com.gmail.nossr50.util;
 
 import com.gmail.nossr50.api.exceptions.IncompleteNamespacedKeyRegister;
 import com.gmail.nossr50.config.PersistentDataConfig;
+import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.metadata.MobMetaFlagType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
@@ -167,12 +168,14 @@ public final class MobMetadataUtils {
      * @param livingEntity target entity
      */
     public static void removeMobFlags(@NotNull LivingEntity livingEntity) {
-        if (isUsingPersistentData) {
-            for (MobMetaFlagType flag : MobMetaFlagType.values()) {
-                removeMobFlag(flag, livingEntity);
+        mcMMO.p.getFoliaLib().getImpl().runAtEntity(livingEntity, __ -> {
+            if (isUsingPersistentData) {
+                for (MobMetaFlagType flag : MobMetaFlagType.values()) {
+                    removeMobFlag(flag, livingEntity);
+                }
+            } else {
+                mobRegistry.remove(livingEntity);
             }
-        } else {
-            mobRegistry.remove(livingEntity);
-        }
+        });
     }
 }
