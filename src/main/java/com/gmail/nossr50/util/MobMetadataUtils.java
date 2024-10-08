@@ -12,14 +12,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.HashSet;
-import java.util.UUID;
 import java.util.WeakHashMap;
 
 import static com.gmail.nossr50.util.MetadataService.*;
 
 //TODO: Use SpawnReason where appropriate instead of MobMetaFlagType
 public final class MobMetadataUtils {
-    private static final @NotNull WeakHashMap<UUID, HashSet<MobMetaFlagType>> mobRegistry; //transient data
+    private static final @NotNull WeakHashMap<Entity, HashSet<MobMetaFlagType>> mobRegistry; //transient data
     private static final @NotNull EnumMap<MobMetaFlagType, NamespacedKey> mobFlagKeyMap; //used for persistent data
     private static boolean isUsingPersistentData = false;
 
@@ -69,8 +68,8 @@ public final class MobMetadataUtils {
         if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
             return livingEntity.getPersistentDataContainer().has(mobFlagKeyMap.get(flag), PersistentDataType.BYTE);
         } else {
-            if (mobRegistry.containsKey(livingEntity.getUniqueId())) {
-                return mobRegistry.get(livingEntity.getUniqueId()).contains(flag);
+            if (mobRegistry.containsKey(livingEntity)) {
+                return mobRegistry.get(livingEntity).contains(flag);
             }
 
             return false;
@@ -93,7 +92,7 @@ public final class MobMetadataUtils {
 
             return false;
         } else {
-            return mobRegistry.containsKey(livingEntity.getUniqueId()) && !mobRegistry.get(livingEntity.getUniqueId()).isEmpty();
+            return mobRegistry.containsKey(livingEntity) && mobRegistry.get(livingEntity).size() > 0;
         }
     }
 
@@ -115,8 +114,8 @@ public final class MobMetadataUtils {
                 }
             }
         } else {
-            HashSet<MobMetaFlagType> flags = new HashSet<>(mobRegistry.get(sourceEntity.getUniqueId()));
-            mobRegistry.put(targetEntity.getUniqueId(), flags);
+            HashSet<MobMetaFlagType> flags = new HashSet<>(mobRegistry.get(sourceEntity));
+            mobRegistry.put(targetEntity, flags);
         }
     }
 
@@ -134,9 +133,9 @@ public final class MobMetadataUtils {
                 persistentDataContainer.set(mobFlagKeyMap.get(flag), PersistentDataType.BYTE, MetadataConstants.SIMPLE_FLAG_VALUE);
             }
         } else {
-            HashSet<MobMetaFlagType> flags = mobRegistry.getOrDefault(livingEntity.getUniqueId(), new HashSet<>());
+            HashSet<MobMetaFlagType> flags = mobRegistry.getOrDefault(livingEntity, new HashSet<>());
             flags.add(flag); // add the new flag
-            mobRegistry.put(livingEntity.getUniqueId(), flags); //update registry
+            mobRegistry.put(livingEntity, flags); //update registry
         }
     }
 
@@ -153,11 +152,11 @@ public final class MobMetadataUtils {
                 persistentDataContainer.remove(mobFlagKeyMap.get(flag));
             }
         } else {
-            if (mobRegistry.containsKey(livingEntity.getUniqueId())) {
-                mobRegistry.get(livingEntity.getUniqueId()).remove(flag);
+            if (mobRegistry.containsKey(livingEntity)) {
+                mobRegistry.get(livingEntity).remove(flag);
 
-                if (mobRegistry.get(livingEntity.getUniqueId()).isEmpty())
-                    mobRegistry.remove(livingEntity.getUniqueId());
+                if (mobRegistry.get(livingEntity).size() == 0)
+                    mobRegistry.remove(livingEntity);
             }
         }
     }
@@ -173,7 +172,7 @@ public final class MobMetadataUtils {
                 removeMobFlag(flag, livingEntity);
             }
         } else {
-            mobRegistry.remove(livingEntity.getUniqueId());
+            mobRegistry.remove(livingEntity);
         }
     }
 }
