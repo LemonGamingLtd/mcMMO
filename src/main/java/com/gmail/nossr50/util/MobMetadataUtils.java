@@ -5,21 +5,27 @@ import com.gmail.nossr50.config.PersistentDataConfig;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.metadata.MobMetaFlagType;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.WeakHashMap;
+import java.util.List;
 
-import static com.gmail.nossr50.util.MetadataService.*;
+import static com.gmail.nossr50.util.MetadataService.NSK_COTW_SUMMONED_MOB;
+import static com.gmail.nossr50.util.MetadataService.NSK_EGG_MOB;
+import static com.gmail.nossr50.util.MetadataService.NSK_EXPLOITED_ENDERMEN;
+import static com.gmail.nossr50.util.MetadataService.NSK_MOB_SPAWNER_MOB;
+import static com.gmail.nossr50.util.MetadataService.NSK_NETHER_GATE_MOB;
+import static com.gmail.nossr50.util.MetadataService.NSK_PLAYER_BRED_MOB;
+import static com.gmail.nossr50.util.MetadataService.NSK_PLAYER_TAMED_MOB;
 
 //TODO: Use SpawnReason where appropriate instead of MobMetaFlagType
 public final class MobMetadataUtils {
-    private static final @NotNull WeakHashMap<Entity, HashSet<MobMetaFlagType>> mobRegistry; //transient data
+    private static final String METADATA_KEY = "mcMMO-Metadata";
     private static final @NotNull EnumMap<MobMetaFlagType, NamespacedKey> mobFlagKeyMap; //used for persistent data
     private static boolean isUsingPersistentData = false;
 
@@ -29,7 +35,6 @@ public final class MobMetadataUtils {
 
     static {
         mobFlagKeyMap = new EnumMap<>(MobMetaFlagType.class);
-        mobRegistry = new WeakHashMap<>();
         initMobFlagKeyMap();
 
         for (MobMetaFlagType metaFlagType : MobMetaFlagType.values()) {
@@ -52,7 +57,8 @@ public final class MobMetadataUtils {
                 case PLAYER_BRED_MOB -> mobFlagKeyMap.put(mobMetaFlagType, NSK_PLAYER_BRED_MOB);
                 case EXPLOITED_ENDERMEN -> mobFlagKeyMap.put(mobMetaFlagType, NSK_EXPLOITED_ENDERMEN);
                 case PLAYER_TAMED_MOB -> mobFlagKeyMap.put(mobMetaFlagType, NSK_PLAYER_TAMED_MOB);
-                default -> throw new IncompleteNamespacedKeyRegister("missing namespaced key register for type: " + mobMetaFlagType);
+                default ->
+                    throw new IncompleteNamespacedKeyRegister("missing namespaced key register for type: " + mobMetaFlagType);
             }
         }
     }
@@ -62,18 +68,17 @@ public final class MobMetadataUtils {
      *
      * @param flag         the type of mob flag to check for
      * @param livingEntity the living entity to check for metadata
-     *
      * @return true if the mob has metadata values for target {@link MobMetaFlagType}
      */
     public static boolean hasMobFlag(@NotNull MobMetaFlagType flag, @NotNull LivingEntity livingEntity) {
         if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
             return livingEntity.getPersistentDataContainer().has(mobFlagKeyMap.get(flag), PersistentDataType.BYTE);
         } else {
-            if (mobRegistry.containsKey(livingEntity)) {
-                return mobRegistry.get(livingEntity).contains(flag);
+            final List<MetadataValue> values = livingEntity.getMetadata(METADATA_KEY);
+            if (values.isEmpty()) {
+                return false;
             }
-
-            return false;
+            return values.stream().anyMatch(value -> value.asString().equals(flag.name()));
         }
     }
 
@@ -81,7 +86,6 @@ public final class MobMetadataUtils {
      * Whether a target {@link LivingEntity} has any mcMMO mob flags
      *
      * @param livingEntity the living entity to check for metadata
-     *
      * @return true if the mob has any mcMMO mob related metadata values
      */
     public static boolean hasMobFlags(@NotNull LivingEntity livingEntity) {
@@ -93,7 +97,7 @@ public final class MobMetadataUtils {
 
             return false;
         } else {
-            return mobRegistry.containsKey(livingEntity) && mobRegistry.get(livingEntity).size() > 0;
+            return !livingEntity.getMetadata(METADATA_KEY).isEmpty();
         }
     }
 
@@ -115,8 +119,9 @@ public final class MobMetadataUtils {
                 }
             }
         } else {
-            HashSet<MobMetaFlagType> flags = new HashSet<>(mobRegistry.get(sourceEntity));
-            mobRegistry.put(targetEntity, flags);
+            for (final MetadataValue value : sourceEntity.getMetadata(METADATA_KEY)) {
+                targetEntity.setMetadata(METADATA_KEY, value);
+            }
         }
     }
 
@@ -134,9 +139,7 @@ public final class MobMetadataUtils {
                 persistentDataContainer.set(mobFlagKeyMap.get(flag), PersistentDataType.BYTE, MetadataConstants.SIMPLE_FLAG_VALUE);
             }
         } else {
-            HashSet<MobMetaFlagType> flags = mobRegistry.getOrDefault(livingEntity, new HashSet<>());
-            flags.add(flag); // add the new flag
-            mobRegistry.put(livingEntity, flags); //update registry
+            livingEntity.setMetadata(METADATA_KEY, new FixedMetadataValue(mcMMO.p, flag.name()));
         }
     }
 
@@ -153,12 +156,7 @@ public final class MobMetadataUtils {
                 persistentDataContainer.remove(mobFlagKeyMap.get(flag));
             }
         } else {
-            if (mobRegistry.containsKey(livingEntity)) {
-                mobRegistry.get(livingEntity).remove(flag);
-
-                if (mobRegistry.get(livingEntity).size() == 0)
-                    mobRegistry.remove(livingEntity);
-            }
+            livingEntity.removeMetadata(METADATA_KEY, mcMMO.p);
         }
     }
 
@@ -174,7 +172,7 @@ public final class MobMetadataUtils {
                     removeMobFlag(flag, livingEntity);
                 }
             } else {
-                mobRegistry.remove(livingEntity);
+                livingEntity.removeMetadata(METADATA_KEY, mcMMO.p);
             }
         });
     }
