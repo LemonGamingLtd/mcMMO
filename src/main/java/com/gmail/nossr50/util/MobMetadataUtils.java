@@ -71,15 +71,16 @@ public final class MobMetadataUtils {
      * @return true if the mob has metadata values for target {@link MobMetaFlagType}
      */
     public static boolean hasMobFlag(@NotNull MobMetaFlagType flag, @NotNull LivingEntity livingEntity) {
-        if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
-            return livingEntity.getPersistentDataContainer().has(mobFlagKeyMap.get(flag), PersistentDataType.BYTE);
-        } else {
-            final List<MetadataValue> values = livingEntity.getMetadata(METADATA_KEY);
-            if (values.isEmpty()) {
-                return false;
-            }
-            return values.stream().anyMatch(value -> value.asString().equals(flag.name()));
-        }
+        //if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
+        //    return livingEntity.getPersistentDataContainer().has(mobFlagKeyMap.get(flag), PersistentDataType.BYTE);
+        //} else {
+        //    final List<MetadataValue> values = livingEntity.getMetadata(METADATA_KEY);
+        //    if (values.isEmpty()) {
+        //        return false;
+        //    }
+        //    return values.stream().anyMatch(value -> value.asString().equals(flag.name()));
+        //}
+        return false;
     }
 
     /**
@@ -89,16 +90,16 @@ public final class MobMetadataUtils {
      * @return true if the mob has any mcMMO mob related metadata values
      */
     public static boolean hasMobFlags(@NotNull LivingEntity livingEntity) {
-        if (isUsingPersistentData) {
-            for (MobMetaFlagType metaFlagType : MobMetaFlagType.values()) {
-                if (hasMobFlag(metaFlagType, livingEntity))
-                    return true;
-            }
-
-            return false;
-        } else {
-            return !livingEntity.getMetadata(METADATA_KEY).isEmpty();
-        }
+        //if (isUsingPersistentData) {
+        //    for (MobMetaFlagType metaFlagType : MobMetaFlagType.values()) {
+        //        if (hasMobFlag(metaFlagType, livingEntity))
+        //            return true;
+        //    }
+        //    return false;
+        //} else {
+        //    return !livingEntity.getMetadata(METADATA_KEY).isEmpty();
+        //}
+        return false;
     }
 
     /**
@@ -109,20 +110,19 @@ public final class MobMetadataUtils {
      * @param targetEntity entity to copy to
      */
     public static void addMobFlags(@NotNull LivingEntity sourceEntity, @NotNull LivingEntity targetEntity) {
-        if (!hasMobFlags(sourceEntity))
-            return;
-
-        if (isUsingPersistentData) {
-            for (MobMetaFlagType flag : MobMetaFlagType.values()) {
-                if (hasMobFlag(flag, sourceEntity)) {
-                    flagMetadata(flag, targetEntity);
-                }
-            }
-        } else {
-            for (final MetadataValue value : sourceEntity.getMetadata(METADATA_KEY)) {
-                targetEntity.setMetadata(METADATA_KEY, value);
-            }
-        }
+        //if (!hasMobFlags(sourceEntity))
+        //    return;
+        //if (isUsingPersistentData) {
+        //    for (MobMetaFlagType flag : MobMetaFlagType.values()) {
+        //        if (hasMobFlag(flag, sourceEntity)) {
+        //            flagMetadata(flag, targetEntity);
+        //        }
+        //    }
+        //} else {
+        //    for (final MetadataValue value : sourceEntity.getMetadata(METADATA_KEY)) {
+        //        targetEntity.setMetadata(METADATA_KEY, value);
+        //    }
+        //}
     }
 
     /**
@@ -133,14 +133,14 @@ public final class MobMetadataUtils {
      * @param livingEntity the target living entity
      */
     public static void flagMetadata(@NotNull MobMetaFlagType flag, @NotNull LivingEntity livingEntity) {
-        if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
-            if (!hasMobFlag(flag, livingEntity)) {
-                PersistentDataContainer persistentDataContainer = livingEntity.getPersistentDataContainer();
-                persistentDataContainer.set(mobFlagKeyMap.get(flag), PersistentDataType.BYTE, MetadataConstants.SIMPLE_FLAG_VALUE);
-            }
-        } else {
-            livingEntity.setMetadata(METADATA_KEY, new FixedMetadataValue(mcMMO.p, flag.name()));
-        }
+        //if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
+        //    if (!hasMobFlag(flag, livingEntity)) {
+        //        PersistentDataContainer persistentDataContainer = livingEntity.getPersistentDataContainer();
+        //        persistentDataContainer.set(mobFlagKeyMap.get(flag), PersistentDataType.BYTE, MetadataConstants.SIMPLE_FLAG_VALUE);
+        //    }
+        //} else {
+        //    livingEntity.setMetadata(METADATA_KEY, new FixedMetadataValue(mcMMO.p, flag.name()));
+        //}
     }
 
     /**
@@ -150,14 +150,14 @@ public final class MobMetadataUtils {
      * @param livingEntity the target living entity
      */
     public static void removeMobFlag(@NotNull MobMetaFlagType flag, @NotNull LivingEntity livingEntity) {
-        if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
-            if (hasMobFlag(flag, livingEntity)) {
-                PersistentDataContainer persistentDataContainer = livingEntity.getPersistentDataContainer();
-                persistentDataContainer.remove(mobFlagKeyMap.get(flag));
-            }
-        } else {
-            livingEntity.removeMetadata(METADATA_KEY, mcMMO.p);
-        }
+        //if (PersistentDataConfig.getInstance().isMobPersistent(flag)) {
+        //    if (hasMobFlag(flag, livingEntity)) {
+        //        PersistentDataContainer persistentDataContainer = livingEntity.getPersistentDataContainer();
+        //        persistentDataContainer.remove(mobFlagKeyMap.get(flag));
+        //    }
+        //} else {
+        //    livingEntity.removeMetadata(METADATA_KEY, mcMMO.p);
+        //}
     }
 
     /**
@@ -166,14 +166,14 @@ public final class MobMetadataUtils {
      * @param livingEntity target entity
      */
     public static void removeMobFlags(@NotNull LivingEntity livingEntity) {
-        mcMMO.p.getFoliaLib().getImpl().runAtEntity(livingEntity, __ -> {
-            if (isUsingPersistentData) {
-                for (MobMetaFlagType flag : MobMetaFlagType.values()) {
-                    removeMobFlag(flag, livingEntity);
-                }
-            } else {
-                livingEntity.removeMetadata(METADATA_KEY, mcMMO.p);
-            }
-        });
+        //mcMMO.p.getFoliaLib().getImpl().runAtEntity(livingEntity, __ -> {
+        //    if (isUsingPersistentData) {
+        //        for (MobMetaFlagType flag : MobMetaFlagType.values()) {
+        //            removeMobFlag(flag, livingEntity);
+        //        }
+        //    } else {
+        //        livingEntity.removeMetadata(METADATA_KEY, mcMMO.p);
+        //    }
+        //});
     }
 }
