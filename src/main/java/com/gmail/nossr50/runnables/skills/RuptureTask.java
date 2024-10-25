@@ -44,33 +44,35 @@ public class RuptureTask extends CancellableRunnable {
 
     @Override
     public void run() {
-        //Check validity
-        if (targetEntity.isValid()) {
-            ruptureTick += 1; //Advance rupture tick by 1.
-            damageTickTracker += 1; //Increment damage tick tracker
+        mcMMO.p.getFoliaLib().getImpl().runAtEntity(targetEntity, task -> {
+            //Check validity
+            if (targetEntity.isValid()) {
+                ruptureTick += 1; //Advance rupture tick by 1.
+                damageTickTracker += 1; //Increment damage tick tracker
 
-            //TODO: Clean this code up, applyRupture() is a confusing name for something that returns boolean
-            //Rupture hasn't ended yet
-            if (ruptureTick < expireTick) {
-                //Is it time to damage?
-                if (damageTickTracker >= DAMAGE_TICK_INTERVAL) {
+                //TODO: Clean this code up, applyRupture() is a confusing name for something that returns boolean
+                //Rupture hasn't ended yet
+                if (ruptureTick < expireTick) {
+                    //Is it time to damage?
+                    if (damageTickTracker >= DAMAGE_TICK_INTERVAL) {
 
-                    damageTickTracker = 0; //Reset timer
-                    if (applyRupture()) return;
+                        damageTickTracker = 0; //Reset timer
+                        if (applyRupture()) return;
 
-                    playAnimation();
+                        playAnimation();
+                    }
+                } else {
+                    if (!applyRupture()) {
+                        playAnimation();
+                    }
+
+                    endRupture();
                 }
             } else {
-                if (!applyRupture()) {
-                    playAnimation();
-                }
-
-                endRupture();
+                targetEntity.removeMetadata(MetadataConstants.METADATA_KEY_RUPTURE, mcMMO.p);
+                this.cancel(); //Task no longer needed
             }
-        } else {
-            targetEntity.removeMetadata(MetadataConstants.METADATA_KEY_RUPTURE, mcMMO.p);
-            this.cancel(); //Task no longer needed
-        }
+        });
     }
 
     private void playAnimation() {
