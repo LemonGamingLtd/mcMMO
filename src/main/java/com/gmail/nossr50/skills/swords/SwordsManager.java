@@ -10,7 +10,6 @@ import com.gmail.nossr50.datatypes.skills.ToolType;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.runnables.skills.RuptureTask;
 import com.gmail.nossr50.skills.SkillManager;
-import com.gmail.nossr50.util.ItemUtils;
 import com.gmail.nossr50.util.MetadataConstants;
 import com.gmail.nossr50.util.Permissions;
 import com.gmail.nossr50.util.player.NotificationManager;
@@ -20,7 +19,6 @@ import com.gmail.nossr50.util.skills.RankUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class SwordsManager extends SkillManager {
@@ -90,17 +88,13 @@ public class SwordsManager extends SkillManager {
                 }
             }
 
-            RuptureTask ruptureTask = new RuptureTask(mmoPlayer, target,
+            final RuptureTask ruptureTask = new RuptureTask(mmoPlayer, target,
                     mcMMO.p.getAdvancedConfig().getRuptureTickDamage(target instanceof Player, getRuptureRank()));
 
-            RuptureTaskMeta ruptureTaskMeta = new RuptureTaskMeta(mcMMO.p, ruptureTask);
+            final RuptureTaskMeta ruptureTaskMeta = new RuptureTaskMeta(mcMMO.p, ruptureTask);
 
-            mcMMO.p.getFoliaLib().getImpl().runAtEntityTimer(mmoPlayer.getPlayer(), ruptureTask, 1, 1);
+            mcMMO.p.getFoliaLib().getScheduler().runAtEntityTimer(target, ruptureTask, 1, 1);
             target.setMetadata(MetadataConstants.METADATA_KEY_RUPTURE, ruptureTaskMeta);
-
-//            if (mmoPlayer.useChatNotifications()) {
-//                NotificationManager.sendPlayerInformation(getPlayer(), NotificationType.SUBSKILL_MESSAGE, "Swords.Combat.Bleeding");
-//            }
         }
     }
 
@@ -112,23 +106,12 @@ public class SwordsManager extends SkillManager {
         int rank = RankUtils.getRank(getPlayer(), SubSkillType.SWORDS_STAB);
 
         if (rank > 0) {
-            return (1.0D + (rank * 1.5));
+            double baseDamage = mcMMO.p.getAdvancedConfig().getStabBaseDamage();
+            double rankMultiplier = mcMMO.p.getAdvancedConfig().getStabPerRankMultiplier();
+            return (baseDamage + (rank * rankMultiplier));
         }
 
         return 0;
-    }
-
-    public int getToolTier(@NotNull ItemStack itemStack) {
-        if (ItemUtils.isNetheriteTool(itemStack))
-            return 5;
-        if (ItemUtils.isDiamondTool(itemStack))
-            return 4;
-        else if (ItemUtils.isIronTool(itemStack) || ItemUtils.isGoldTool(itemStack))
-            return 3;
-        else if (ItemUtils.isStoneTool(itemStack))
-            return 2;
-        else
-            return 1;
     }
 
     /**
@@ -138,14 +121,15 @@ public class SwordsManager extends SkillManager {
      * @param damage The amount of damage initially dealt by the event
      */
     public void counterAttackChecks(@NotNull LivingEntity attacker, double damage) {
-
         if (ProbabilityUtil.isSkillRNGSuccessful(SubSkillType.SWORDS_COUNTER_ATTACK, mmoPlayer)) {
-            CombatUtils.dealDamage(attacker, damage / Swords.counterAttackModifier, getPlayer());
+            CombatUtils.safeDealDamage(attacker, damage / Swords.counterAttackModifier, getPlayer());
 
-            NotificationManager.sendPlayerInformation(getPlayer(), NotificationType.SUBSKILL_MESSAGE, "Swords.Combat.Countered");
+            NotificationManager.sendPlayerInformation(getPlayer(),
+                    NotificationType.SUBSKILL_MESSAGE, "Swords.Combat.Countered");
 
             if (attacker instanceof Player) {
-                NotificationManager.sendPlayerInformation((Player)attacker, NotificationType.SUBSKILL_MESSAGE, "Swords.Combat.Counter.Hit");
+                NotificationManager.sendPlayerInformation((Player)attacker,
+                        NotificationType.SUBSKILL_MESSAGE, "Swords.Combat.Counter.Hit");
             }
         }
     }

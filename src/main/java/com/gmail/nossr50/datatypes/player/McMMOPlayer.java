@@ -21,6 +21,7 @@ import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.party.ShareHandler;
 import com.gmail.nossr50.runnables.skills.AbilityDisableTask;
+import com.gmail.nossr50.runnables.skills.RuptureTask;
 import com.gmail.nossr50.runnables.skills.ToolLowerTask;
 import com.gmail.nossr50.skills.SkillManager;
 import com.gmail.nossr50.skills.acrobatics.AcrobaticsManager;
@@ -963,7 +964,7 @@ public class McMMOPlayer implements Identified {
         }
 
         setToolPreparationMode(tool, false);
-        mcMMO.p.getFoliaLib().getImpl().runAtEntityLater(player, new AbilityDisableTask(this, superAbilityType), (long) ticks * Misc.TICK_CONVERSION_FACTOR);
+        mcMMO.p.getFoliaLib().getScheduler().runAtEntityLater(player, new AbilityDisableTask(this, superAbilityType), (long) ticks * Misc.TICK_CONVERSION_FACTOR);
     }
 
     public void processAbilityActivation(@NotNull PrimarySkillType primarySkillType) {
@@ -1021,7 +1022,7 @@ public class McMMOPlayer implements Identified {
             }
 
             setToolPreparationMode(tool, true);
-            mcMMO.p.getFoliaLib().getImpl().runAtEntityLater(player, new ToolLowerTask(this, tool), 4 * Misc.TICK_CONVERSION_FACTOR);
+            mcMMO.p.getFoliaLib().getScheduler().runAtEntityLater(player, new ToolLowerTask(this, tool), 4 * Misc.TICK_CONVERSION_FACTOR);
         }
     }
 
@@ -1144,14 +1145,17 @@ public class McMMOPlayer implements Identified {
      * @param syncSave if true, data is saved synchronously
      */
     public void logout(boolean syncSave) {
-        Player thisPlayer = getPlayer();
-        if (getPlayer().hasMetadata(MetadataConstants.METADATA_KEY_RUPTURE)) {
-            RuptureTaskMeta ruptureTaskMeta = (RuptureTaskMeta) getPlayer().getMetadata(MetadataConstants.METADATA_KEY_RUPTURE).get(0);
-
-            //Punish a logout
-            ruptureTaskMeta.getRuptureTimerTask().endRupture();
-            ruptureTaskMeta.getRuptureTimerTask().endRupture();
-            ruptureTaskMeta.getRuptureTimerTask().endRupture();
+        final Player thisPlayer = getPlayer();
+        if (getPlayer() != null && getPlayer().hasMetadata(MetadataConstants.METADATA_KEY_RUPTURE)) {
+            final RuptureTaskMeta ruptureTaskMeta
+                    = (RuptureTaskMeta) getPlayer().getMetadata(MetadataConstants.METADATA_KEY_RUPTURE).get(0);
+            if (ruptureTaskMeta != null) {
+                final RuptureTask ruptureTimerTask = ruptureTaskMeta.getRuptureTimerTask();
+                if(ruptureTimerTask != null) {
+                    ruptureTimerTask.cancel();
+                }
+                getPlayer().removeMetadata(MetadataConstants.METADATA_KEY_RUPTURE, mcMMO.p);
+            }
         }
 
         cleanup();

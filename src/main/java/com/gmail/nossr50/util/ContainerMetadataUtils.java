@@ -1,8 +1,6 @@
 package com.gmail.nossr50.util;
 
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
-import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
-import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.player.UserManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,13 +17,14 @@ import java.util.UUID;
 
 import static com.gmail.nossr50.util.MetadataService.NSK_CONTAINER_UUID_LEAST_SIG;
 import static com.gmail.nossr50.util.MetadataService.NSK_CONTAINER_UUID_MOST_SIG;
-import static java.util.Objects.requireNonNull;
 
 public class ContainerMetadataUtils {
 
-    public static void changeContainerOwnership(@NotNull BlockState blockState, @NotNull Player player) {
-        requireNonNull(blockState, "blockState cannot be null");
-        requireNonNull(player, "Player cannot be null");
+    public static void changeContainerOwnership(@Nullable BlockState blockState, @Nullable Player player) {
+        // no-op when the blockState is null or player is null
+        if (blockState == null || player == null) {
+            return;
+        }
 
         final McMMOPlayer mmoPlayer = UserManager.getPlayer(player);
 
@@ -79,8 +78,10 @@ public class ContainerMetadataUtils {
     }
 
     public static void processContainerOwnership(BlockState blockState, Player player) {
-        if (!mcMMO.p.getSkillTools().doesPlayerHaveSkillPermission(player, PrimarySkillType.SMELTING))
+        // no-op when the blockState is null or player is null
+        if (blockState == null || player == null) {
             return;
+        }
 
         if (getContainerOwner(blockState) != null) {
             if (getContainerOwner(blockState).getUniqueId().equals(player.getUniqueId()))

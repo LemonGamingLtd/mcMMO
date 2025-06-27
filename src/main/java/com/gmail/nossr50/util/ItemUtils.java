@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Predicate;
 
 import static java.util.Objects.requireNonNull;
@@ -111,12 +112,12 @@ public final class ItemUtils {
 
         // try to match to Material ENUM
         if (material == null) {
-            material = Material.getMaterial(materialName.toUpperCase());
+            material = Material.getMaterial(materialName.toUpperCase(Locale.ENGLISH));
         }
 
         // try to match to Material ENUM with legacy name
         if (material == null) {
-            material = Material.getMaterial(materialName.toUpperCase(), true);
+            material = Material.getMaterial(materialName.toUpperCase(Locale.ENGLISH), true);
         }
         return material;
     }
@@ -759,7 +760,7 @@ public final class ItemUtils {
         }
 
         // We can't get the item until we spawn it and we want to make it cancellable, so we have a custom event.
-        McMMOItemSpawnEvent event = new McMMOItemSpawnEvent(location, itemStack, itemSpawnReason, player);
+        final McMMOItemSpawnEvent event = new McMMOItemSpawnEvent(location, itemStack, itemSpawnReason, player);
         mcMMO.p.getServer().getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {
@@ -786,7 +787,7 @@ public final class ItemUtils {
         }
 
         // We can't get the item until we spawn it and we want to make it cancellable, so we have a custom event.
-        McMMOItemSpawnEvent event = new McMMOItemSpawnEvent(location, itemStack, itemSpawnReason, player);
+        final McMMOItemSpawnEvent event = new McMMOItemSpawnEvent(location, itemStack, itemSpawnReason, player);
         mcMMO.p.getServer().getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {

@@ -252,7 +252,7 @@ public class FishingManager extends SkillManager {
     }
 
     public void masterAngler(@NotNull FishHook hook, int lureLevel) {
-        mcMMO.p.getFoliaLib().getImpl().runAtEntityLater(hook, new MasterAnglerTask(hook, this, lureLevel), 1); //We run later to get the lure bonus applied
+        mcMMO.p.getFoliaLib().getScheduler().runAtEntityLater(hook, new MasterAnglerTask(hook, this, lureLevel), 1); //We run later to get the lure bonus applied
     }
 
     /**
@@ -572,7 +572,8 @@ public class FishingManager extends SkillManager {
 
             ItemUtils.spawnItem(getPlayer(), target.getLocation(), drop, ItemSpawnReason.FISHING_SHAKE_TREASURE);
             // Make it so you can shake a mob no more than 4 times.
-            CombatUtils.dealDamage(target, Math.min(Math.max(target.getMaxHealth() / 4, 1), 10), getPlayer());
+            double dmg = Math.min(Math.max(target.getMaxHealth() / 4, 1), 10);
+            CombatUtils.safeDealDamage(target, dmg, getPlayer());
             applyXpGain(ExperienceConfig.getInstance().getFishingShakeXP(), XPGainReason.PVE);
         }
     }
